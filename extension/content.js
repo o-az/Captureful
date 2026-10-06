@@ -7,7 +7,7 @@
    * @typedef {[number, number]} Interval
    * @typedef {{ y: number, height: number, blob: Blob }} Piece
    * @typedef {{ el: Element, top: number }} Anchor
-   * @typedef {{ key: string, offsetX: number, offsetY: number, sx: number, sy: number }} Calibration
+   * @typedef {{ key: string, offsetX: number, offsetY: number, sx: number, sy: number, clearTop: number, clearBottom: number }} Calibration
    * @typedef {'idle' | 'armed' | 'confirm' | 'pick' | 'capturing' | 'processing' | 'result'} State
    * @typedef {{ blob: Blob, url: string, width: number, height: number }} Part
    */
@@ -1119,6 +1119,9 @@
     const data = ctx.getImageData(0, 0, 1, bitmap.height).data
     let first = -1
     let last = -1
+    // Rows where Safari's own bars fade over the page aren't pure magenta.
+    let pureFirst = -1
+    let pureLast = -1
     for (let y = 0; y < bitmap.height; y++) {
       const r = data[y * 4] ?? 0
       const g = data[y * 4 + 1] ?? 0
@@ -1127,18 +1130,34 @@
         if (first < 0) first = y
         last = y
       }
+      if (r >= 250 && g <= 5 && b >= 250) {
+        if (pureFirst < 0) pureFirst = y
+        pureLast = y
+      }
     }
     bitmap.close()
     if (first < 0) {
       console.warn('[scrolling-screenshot] calibration marker not found')
-      return { key, offsetX: 0, offsetY: 0, sx, sy: sx }
+      return {
+        key,
+        offsetX: 0,
+        offsetY: 0,
+        sx,
+        sy: sx,
+        clearTop: 0,
+        clearBottom: window.innerHeight,
+      }
     }
+    const sy = (last + 1 - first) / window.innerHeight
     return {
       key,
       offsetX: 0,
       offsetY: first,
       sx,
-      sy: (last + 1 - first) / window.innerHeight,
+      sy,
+      clearTop: pureFirst < 0 ? 0 : (pureFirst - first) / sy,
+      clearBottom:
+        pureFirst < 0 ? window.innerHeight : (pureLast + 1 - first) / sy,
     }
   }
 
@@ -1165,6 +1184,22 @@
   const currentRange = () => {
     if (!target) return null
     const box = unobstructedBoxOf(target, visibleBoxOf(target))
+    if (calibration) {
+      // Skip the band under Safari's faded bars, except at the scroll ends where
+      // that band can't be scrolled into the clear.
+      const [min, max] = scrollRange(target)
+      const scrollTop = getScrollTop(target)
+      const top =
+        scrollTop > min + 1 ? Math.max(box.top, calibration.clearTop) : box.top
+      const bottom =
+        scrollTop < max - 1
+          ? Math.min(box.bottom, calibration.clearBottom)
+          : box.bottom
+      if (bottom - top > (box.bottom - box.top) * 0.5) {
+        box.top = top
+        box.bottom = bottom
+      }
+    }
     return {
       box,
       range: [
@@ -1271,19 +1306,19 @@
   const captureFrame = async () => {
     if (state !== 'capturing' || !target) return
     const session = generation
-    updatePosition()
-    const current = currentRange()
-    if (!current) return
-    const { box, range } = current
-    if (box.right - box.left < 2 || !uncovered(range).length) return
-    pendingCapture = false
-    renderPill()
     try {
       if (!calibration || calibration.key !== viewportKey()) {
         calibration = await calibrate()
-        if (session !== generation) return
+        if (session !== generation || !target) return
       }
       const cal = calibration
+      updatePosition()
+      const current = currentRange()
+      if (!current) return
+      const { box, range } = current
+      if (box.right - box.left < 2 || !uncovered(range).length) return
+      pendingCapture = false
+      renderPill()
       const before = position
       const bitmap = await screenshot(box)
       if (session !== generation || !target) {
