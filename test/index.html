@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scrolling Screenshot harness</title>
+<style>
+  body { margin: 0; font: 15px/1.4 system-ui, -apple-system, sans-serif; background: #f4f4f5; }
+  nav { padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+  nav a { padding: 4px 8px; background: #e4e4e7; border-radius: 4px; color: #111; text-decoration: none; }
+  .app { display: flex; height: calc(100vh - 140px); margin: 0 8px; border: 1px solid #d4d4d8; background: #fff; }
+  .sidebar { width: 30%; border-right: 1px solid #ddd; padding: 8px; overflow: hidden; }
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .header, .composer { padding: 10px; background: #fafafa; border-bottom: 1px solid #eee; }
+  .composer { border-top: 1px solid #eee; border-bottom: 0; }
+  .scroller { flex: 1; overflow-y: auto; padding: 8px 12px; background: #fff; }
+  .msg { max-width: 75%; margin: 6px 0; padding: 8px 10px; border-radius: 12px; background: #e5e7eb; }
+  .msg.me { margin-left: auto; background: #3b82f6; color: #fff; }
+  .msg img { display: block; width: 100%; border-radius: 8px; margin-top: 6px; }
+  .day { position: sticky; top: 0; text-align: center; font-size: 12px; color: #666; background: rgba(255,255,255,.9); padding: 2px; }
+  .vlist { position: relative; }
+  .vrow { position: absolute; left: 0; right: 0; height: 56px; display: flex; align-items: center; padding: 0 12px; border-bottom: 1px solid #eee; }
+  .reverse { display: flex; flex-direction: column-reverse; }
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; }
+  .modal { width: min(480px, 92vw); height: 70vh; background: #fff; border-radius: 8px; overflow-y: auto; padding: 16px; }
+  .page p { margin: 0 12px 12px; padding: 12px; background: #fff; border: 1px solid #e5e5e5; }
+  .page header { position: fixed; top: 0; left: 0; right: 0; background: #111; color: #fff; padding: 10px; z-index: 10; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="?s=chat">chat</a><a href="?s=lazy">lazy (X-like)</a><a href="?s=virtual">virtual</a>
+  <a href="?s=reverse">column-reverse</a><a href="?s=modal">modal</a><a href="?s=page">page</a><a href="?s=overlay">overlay</a><a href="shadow.html">shadow</a>
+</nav>
+<div id="root"></div>
+<script>
+  const s = new URLSearchParams(location.search).get('s') || 'chat'
+  const root = document.getElementById('root')
+  const hue = (i) => `hsl(${(i * 37) % 360} 70% 85%)`
+  const msgHtml = (i) => `<div class="msg ${i % 3 === 0 ? 'me' : ''}" data-i="${i}" style="${i % 3 ? `background:${hue(i)}` : ''}"><b>#${i}</b> ${'lorem ipsum dolor sit amet '.repeat(1 + (i % 4))}${i % 11 === 5 ? `<img src="img.svg?i=${i}" alt="">` : ''}</div>`
+  const shell = (inner, extra = '') => `<div class="app"><div class="sidebar">Sidebar<br>${'item<br>'.repeat(30)}</div><div class="main"><div class="header">Chat header</div>${inner}<div class="composer">Composer</div></div></div>${extra}`
+  if (s === 'chat') {
+    let html = ''
+    for (let i = 0; i < 120; i++) { if (i % 20 === 0) html += `<div class="day">Day ${i / 20 + 1}</div>`; html += msgHtml(i) }
+    root.innerHTML = shell(`<div class="scroller" id="target">${html}</div>`)
+  } else if (s === 'lazy') {
+    // Starts at the bottom; older messages are prepended when scrolled near the top, keeping the view stable.
+    root.innerHTML = shell(`<div class="scroller" id="target"></div>`)
+    const t = document.getElementById('target')
+    let oldest = 200
+    const prepend = (n) => {
+      const before = t.scrollHeight
+      let html = ''
+      for (let i = oldest - n; i < oldest; i++) html += msgHtml(i)
+      oldest -= n
+      t.insertAdjacentHTML('afterbegin', html)
+      t.scrollTop += t.scrollHeight - before
+    }
+    prepend(25)
+    t.scrollTop = t.scrollHeight
+    let loading = false
+    t.addEventListener('scroll', () => {
+      if (loading || oldest <= 100 || t.scrollTop > 200) return
+      loading = true
+      setTimeout(() => { prepend(25); loading = false }, 300)
+    })
+  } else if (s === 'virtual') {
+    const N = 1000, H = 56
+    root.innerHTML = shell(`<div class="scroller" id="target" style="padding:0"><div class="vlist" style="height:${N * H}px"></div></div>`)
+    const t = document.getElementById('target'), list = t.firstElementChild
+    const rows = new Map()
+    const draw = () => {
+      const from = Math.max(0, Math.floor(t.scrollTop / H) - 3), to = Math.min(N, Math.ceil((t.scrollTop + t.clientHeight) / H) + 3)
+      for (const [i, el] of rows) if (i < from || i >= to) { el.remove(); rows.delete(i) }
+      for (let i = from; i < to; i++) if (!rows.has(i)) {
+        const el = document.createElement('div'); el.className = 'vrow'; el.style.top = `${i * H}px`; el.style.background = hue(i); el.textContent = `Virtual row ${i}`
+        list.append(el); rows.set(i, el)
+      }
+    }
+    t.addEventListener('scroll', draw); draw()
+  } else if (s === 'reverse') {
+    let html = ''
+    for (let i = 79; i >= 0; i--) html += msgHtml(i)
+    root.innerHTML = shell(`<div class="scroller reverse" id="target">${html}</div>`)
+  } else if (s === 'modal') {
+    let html = '<h2>Modal</h2>'
+    for (let i = 0; i < 60; i++) html += `<p style="background:${hue(i)};padding:8px">Modal paragraph ${i}</p>`
+    root.innerHTML = shell(`<div class="scroller">background</div>`, `<div class="modal-bg"><div class="modal" id="target">${html}</div></div>`)
+  } else if (s === 'overlay') {
+    // Like X's chat: a transparent sibling layer sits on top of the scroller.
+    let html = ''
+    for (let i = 0; i < 80; i++) html += msgHtml(i)
+    root.innerHTML = shell(`<div style="position:relative;flex:1;min-height:0;display:flex"><div class="scroller" id="target">${html}</div><div class="layer" style="position:absolute;inset:0"></div></div>`)
+  } else if (s === 'page') {
+    document.body.classList.add('page')
+    let html = '<header>Fixed page header</header><div style="height:50px"></div>'
+    for (let i = 0; i < 80; i++) html += `<p style="background:${hue(i)}">Page paragraph ${i}</p>`
+    root.innerHTML = html
+  }
+</script>
+</body>
+</html>
