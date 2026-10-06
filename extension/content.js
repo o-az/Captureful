@@ -20,6 +20,8 @@
   const AUTO_STOP_MS = 3000
   const AUTO_SCROLL_STEP = 0.8
   const CAPTURE_TIMEOUT_MS = 4000
+  /** Max CSS px a manual scroll may move during a shot for it to be kept. */
+  const MAX_SHOT_DRIFT = 24
   /** Overlays this close to the band's edge (e.g. a date pill under a header) are trimmed too. */
   const EDGE_SLACK = 12
   /** @type {Settings} */
@@ -274,6 +276,39 @@
     }
     if (bottom - top < height * 0.2) return box
     return { ...box, top, bottom }
+  }
+
+  /**
+   * Small floating controls over the content (e.g. "jump to bottom" buttons) that
+   * aren't part of the scroller; hidden during each shot so they don't repeat.
+   * @param {Element} el @param {ReturnType<typeof visibleBoxOf>} box
+   * @returns {HTMLElement[]}
+   */
+  const floatingOverlaysOf = (el, box) => {
+    if (isDocumentTarget(el)) return []
+    const width = box.right - box.left
+    const height = box.bottom - box.top
+    /** @type {HTMLElement[]} */
+    const found = []
+    for (const node of allElements()) {
+      if (!(node instanceof HTMLElement)) continue
+      const position = getComputedStyle(node).position
+      if (position !== 'absolute' && position !== 'fixed') continue
+      if (containsComposed(el, node) || containsComposed(node, el)) continue
+      const rect = node.getBoundingClientRect()
+      if (rect.width < 1 || rect.height < 1) continue
+      if (rect.width >= width * 0.5 || rect.height >= height * 0.5) continue
+      if (
+        rect.right <= box.left ||
+        rect.left >= box.right ||
+        rect.bottom <= box.top ||
+        rect.top >= box.bottom
+      )
+        continue
+      if (found.some((outer) => outer.contains(node))) continue
+      found.push(node)
+    }
+    return found
   }
 
   /** @param {Element} el */
@@ -874,6 +909,16 @@
       if (!autoDirection && !finishing) {
         scheduleIdleCapture()
         scheduleEdgeStop()
+        // Continuous scrolling postpones the idle shot; take one before a gap opens.
+        const current = currentRange()
+        if (current && coverage.length) {
+          const band = current.range[1] - current.range[0]
+          const missing = uncovered(current.range).reduce(
+            (sum, [a, b]) => sum + (b - a),
+            0,
+          )
+          if (missing > band * 0.4) void captureIfNeeded()
+        }
       }
       renderPill()
     })
@@ -978,9 +1023,13 @@
     })
 
   /** Screenshot of the visible tab with our own UI hidden. */
-  const screenshot = async () => {
+  /** @param {ReturnType<typeof visibleBoxOf>} [box] */
+  const screenshot = async (box) => {
     const host = ui?.host
     if (host) host.style.visibility = 'hidden'
+    const floating = target && box ? floatingOverlaysOf(target, box) : []
+    const floatingVisibility = floating.map((node) => node.style.visibility)
+    for (const node of floating) node.style.visibility = 'hidden'
     // Restyling the root scroller makes iOS Safari restore an older page scroll position.
     const scroller =
       target instanceof HTMLElement && !isDocumentTarget(target) ? target : null
@@ -998,6 +1047,9 @@
       const blob = await (await fetch(response.url)).blob()
       return await createImageBitmap(blob)
     } finally {
+      floating.forEach((node, i) => {
+        node.style.visibility = floatingVisibility[i] ?? ''
+      })
       if (scroller) scroller.style.scrollbarWidth = scrollbarWidth
       if (host && state !== 'idle') host.style.visibility = ''
     }
@@ -1140,17 +1192,25 @@
       }
       const cal = calibration
       const before = position
-      const bitmap = await screenshot()
+      const bitmap = await screenshot(box)
       if (session !== generation || !target) {
         bitmap.close()
         return
       }
       updatePosition()
-      if (Math.abs(position - before) > 1 || cal.key !== viewportKey()) {
-        // Moved while the shot was taken, so its position is uncertain. Retry when idle.
+      const moved = position - before
+      // A shot taken while moving has an uncertain position. During slow manual
+      // scrolls, the midpoint is close enough and beats leaving a gap.
+      const tolerable = !autoDirection && Math.abs(moved) <= MAX_SHOT_DRIFT
+      if ((Math.abs(moved) > 1 && !tolerable) || cal.key !== viewportKey()) {
         bitmap.close()
         pendingCapture = true
         return
+      }
+      if (Math.abs(moved) > 1) {
+        range[0] += moved / 2
+        range[1] += moved / 2
+        pendingCapture = true
       }
       if (!sessionScale) {
         sessionScale = settings.scale
@@ -1164,12 +1224,23 @@
       for (const [a, b] of uncovered(range)) {
         const height = Math.max(1, Math.round((b - a) * sessionScale))
         const canvas = createCanvas(width, height)
-        context2d(canvas).drawImage(
+        // Whole source rows: fractional ones blend in a neighbouring row, leaving seam lines.
+        const sourceTop = Math.round(
+          cal.offsetY + (box.top + (a - range[0])) * cal.sy,
+        )
+        const sourceHeight = Math.max(
+          1,
+          Math.round(cal.offsetY + (box.top + (b - range[0])) * cal.sy) -
+            sourceTop,
+        )
+        const ctx = context2d(canvas)
+        ctx.imageSmoothingEnabled = sourceHeight !== height
+        ctx.drawImage(
           bitmap,
           cal.offsetX + box.left * cal.sx,
-          cal.offsetY + (box.top + (a - range[0])) * cal.sy,
+          sourceTop,
           (box.right - box.left) * cal.sx,
-          (b - a) * cal.sy,
+          sourceHeight,
           0,
           0,
           width,
