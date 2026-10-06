@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "ScrollingScreenshot",
+  "name": "Captureful",
   "version": "1.0",
   "description": "Capture scrolling screenshots of any scrollable area, including nested ones like chats, side panels and modals.",
   "icons": {
