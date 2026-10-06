@@ -676,69 +676,6 @@
   let generation = 0
   let autoRun = 0
 
-  // TEMPORARY requested diagnostics, removed after capture.
-  let diagRows = []
-  let diagStart = 0
-  let diagHeight = 0
-  let diagNeighbors = []
-  const diagIds = new WeakMap()
-  let diagNextId = 1
-  let diagMessages = new Map()
-  let diagCounts = { added: 0, removed: 0, replacements: 0 }
-  const diagId = (node) => {
-    if (!diagIds.has(node)) diagIds.set(node, diagNextId++)
-    return diagIds.get(node)
-  }
-  const diagLog = (kind, data = {}) => {
-    diagRows.push({
-      t: +(performance.now() - diagStart).toFixed(1),
-      kind,
-      ...data,
-    })
-    document.documentElement.setAttribute(
-      'data-ss-anchor-debug',
-      JSON.stringify(diagRows),
-    )
-  }
-  const diagScan = () => {
-    const next = new Map()
-    const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT)
-    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-      const text = n.textContent.trim()
-      const match = text.match(/^msg\s*(\d{1,2})\b/i)
-      if (match)
-        next.set(+match[1], {
-          text,
-          node: n,
-          id: diagId(n),
-          parent: diagId(n.parentNode),
-        })
-    }
-    const replaced = []
-    for (const [label, now] of next) {
-      const old = diagMessages.get(label)
-      if (old && old.node !== now.node && old.text === now.text)
-        replaced.push({
-          label,
-          old: old.id,
-          next: now.id,
-          oldParent: old.parent,
-          nextParent: now.parent,
-        })
-    }
-    diagMessages = next
-    return replaced
-  }
-  const diagVisible = () => {
-    const box = visibleBoxOf(target)
-    return [...diagMessages].flatMap(([label, m]) => {
-      const r = m.node.parentElement.getBoundingClientRect()
-      return r.bottom > box.top && r.top < box.bottom
-        ? [{ label, id: m.id, top: r.top, bottom: r.bottom }]
-        : []
-    })
-  }
-
   /** @type {Array<Document | ShadowRoot>} */
   let scrollRoots = []
 
@@ -873,35 +810,7 @@
     lastScrollTop = getScrollTop(el)
     position = 0
     anchors = sampleAnchors()
-    diagRows = []
-    diagStart = performance.now()
-    diagMessages = new Map()
-    diagCounts = { added: 0, removed: 0, replacements: 0 }
-    diagHeight = el.scrollHeight
-    diagScan()
-    diagNeighbors = diagVisible()
-    diagLog('begin', {
-      scrollTop: lastScrollTop,
-      height: el.scrollHeight,
-      client: el.clientHeight,
-      messages: [...diagMessages.keys()],
-    })
-    observer = new MutationObserver((records) => {
-      const added = records.reduce((n, r) => n + r.addedNodes.length, 0)
-      const removed = records.reduce((n, r) => n + r.removedNodes.length, 0)
-      const replaced = diagScan()
-      diagCounts.added += added
-      diagCounts.removed += removed
-      diagCounts.replacements += replaced.length
-      diagLog('mutation', {
-        added,
-        removed,
-        replaced,
-        totals: { ...diagCounts },
-        height: el.scrollHeight,
-        scrollTop: getScrollTop(el),
-        messages: [...diagMessages.keys()],
-      })
+    observer = new MutationObserver(() => {
       scheduleUpdate()
     })
     observer.observe(isDocumentTarget(el) ? document.body : el, {
@@ -951,11 +860,7 @@
           }
           if (seen.has(el) || isPinned(el)) break
           seen.add(el)
-          found.push({
-            el,
-            top: el.getBoundingClientRect().top,
-            snippet: el.textContent.trim().slice(0, 180),
-          })
+          found.push({ el, top: el.getBoundingClientRect().top })
           break
         }
       }
@@ -983,30 +888,6 @@
     if (!el) return
     const scrollTop = getScrollTop(el)
     let delta = scrollTop - lastScrollTop
-    const rawDelta = delta
-    const scrollTopBefore = lastScrollTop
-    const heightBefore = diagHeight
-    const positionBefore = position
-    const sampled = anchors.length
-    const anchorDetails = anchors.map((a) => {
-      const rect = a.el.getBoundingClientRect()
-      return {
-        id: diagId(a.el),
-        tag: a.el.tagName,
-        cls: a.el.className,
-        snippetBefore: a.snippet,
-        snippetAfter: a.el.textContent.trim().slice(0, 180),
-        connected: a.el.isConnected,
-        inside: el.contains(a.el),
-        oldTop: a.top,
-        top: rect.top,
-        height: rect.height,
-        delta: a.top - rect.top,
-        labels: [...a.el.textContent.matchAll(/msg\s*(\d{1,2})\b/gi)].map(
-          (m) => +m[1],
-        ),
-      }
-    })
     const isDoc = isDocumentTarget(el)
     const alive = anchors.filter(
       (anchor) => anchor.el.isConnected && (isDoc || el.contains(anchor.el)),
@@ -1031,27 +912,6 @@
     position += delta
     lastScrollTop = scrollTop
     anchors = sampleAnchors()
-    const neighbors = diagVisible()
-    diagLog('position', {
-      scrollTopBefore,
-      scrollTop,
-      heightBefore,
-      height: el.scrollHeight,
-      rawDelta,
-      sampled,
-      survived: deltas.length,
-      median: deltas.length ? median(deltas) : null,
-      usedDelta: delta,
-      positionBefore,
-      position,
-      nextSampled: anchors.length,
-      autoDirection,
-      anchorDetails,
-      neighborsBefore: diagNeighbors,
-      neighbors,
-    })
-    diagNeighbors = neighbors
-    diagHeight = el.scrollHeight
   }
 
   const scheduleUpdate = () => {
@@ -1336,14 +1196,6 @@
     if (!current) return
     const { box, range } = current
     if (box.right - box.left < 2 || !uncovered(range).length) return
-    diagLog('attempt', {
-      position,
-      range: [...range],
-      coverage,
-      scrollTop: getScrollTop(target),
-      height: target.scrollHeight,
-      visible: diagVisible(),
-    })
     pendingCapture = false
     renderPill()
     try {
@@ -1364,14 +1216,6 @@
       // scrolls, the midpoint is close enough and beats leaving a gap.
       const tolerable = !autoDirection && Math.abs(moved) <= MAX_SHOT_DRIFT
       if ((Math.abs(moved) > 1 && !tolerable) || cal.key !== viewportKey()) {
-        diagLog('discard', {
-          before,
-          position,
-          range,
-          scrollTop: getScrollTop(target),
-          height: target.scrollHeight,
-          viewportChanged: cal.key !== viewportKey(),
-        })
         bitmap.close()
         pendingCapture = true
         return
@@ -1428,16 +1272,6 @@
       pieces.push(...framePieces)
       frameCount++
       coverage = mergeIntervals([...coverage, range])
-      diagLog('frame', {
-        frame: frameCount,
-        position,
-        range,
-        coverage,
-        scrollTop: getScrollTop(target),
-        height: target.scrollHeight,
-        visible: diagVisible(),
-        totals: { ...diagCounts },
-      })
       if (!autoDirection && !finishing) scheduleEdgeStop()
     } catch (error) {
       captureErrors++
