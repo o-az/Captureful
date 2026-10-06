@@ -20,6 +20,8 @@
   const AUTO_STOP_MS = 3000
   const AUTO_SCROLL_STEP = 0.8
   const CAPTURE_TIMEOUT_MS = 4000
+  /** Overlays this close to the band's edge (e.g. a date pill under a header) are trimmed too. */
+  const EDGE_SLACK = 12
   /** @type {Settings} */
   const DEFAULT_SETTINGS = { confirmArea: false, autoStop: true, scale: 0 }
 
@@ -148,6 +150,16 @@
     // iOS Safari reports an unclamped window.scrollY after scrolling past the end.
     const [min, max] = scrollRange(el)
     const clamped = Math.min(max, Math.max(min, top))
+    // Chat UIs that stick to the bottom undo scrolls not preceded by user input.
+    const delta = clamped - getScrollTop(el)
+    const wheelTarget = isDocumentTarget(el) ? document.documentElement : el
+    wheelTarget.dispatchEvent(
+      new WheelEvent('wheel', {
+        deltaY: delta,
+        bubbles: true,
+        cancelable: true,
+      }),
+    )
     if (isDocumentTarget(el))
       window.scrollTo({ top: clamped, behavior: 'instant' })
     else el.scrollTo({ top: clamped, behavior: 'instant' })
@@ -201,26 +213,44 @@
     return { vp, top, left, bottom, right }
   }
 
+  /** @param {Element} ancestor @param {Element} el */
+  const containsComposed = (ancestor, el) => {
+    for (
+      let node = /** @type {Element | null} */ (el);
+      node;
+      node = parentOf(node)
+    )
+      if (node === ancestor) return true
+    return false
+  }
+
   /**
-   * Pinned sticky/fixed elements (headers, composers) paint over the target's
-   * content, so frames only keep the band between them.
+   * Pinned elements (headers, composers) paint over the target's content, so
+   * frames only keep the band between them: sticky/fixed ones, and absolutely
+   * positioned overlays outside the scroller (they don't move with its content).
    * @param {Element} el @param {ReturnType<typeof visibleBoxOf>} box
    */
   const unobstructedBoxOf = (el, box) => {
     const width = box.right - box.left
     const height = box.bottom - box.top
-    let { top, bottom } = box
+    const isDoc = isDocumentTarget(el)
+    /** @type {DOMRect[]} */
+    const pinned = []
     for (const node of allElements()) {
       if (node === el || !(node instanceof HTMLElement)) continue
       const position = getComputedStyle(node).position
-      if (position !== 'sticky' && position !== 'fixed') continue
-      if (position === 'sticky' && !el.contains(node) && !isDocumentTarget(el))
-        continue
+      const inside = !isDoc && containsComposed(el, node)
+      if (position === 'absolute') {
+        if (isDoc || inside || containsComposed(node, el)) continue
+      } else if (position === 'sticky') {
+        if (!inside && !isDoc) continue
+      } else if (position !== 'fixed') continue
       const rect = node.getBoundingClientRect()
       const overlap =
         Math.min(rect.right, box.right) - Math.max(rect.left, box.left)
       if (overlap < width * 0.5 || rect.height < 1) continue
-      if (rect.bottom <= top || rect.top >= bottom) continue
+      if (rect.height > height * 0.5) continue
+      if (rect.bottom <= box.top || rect.top >= box.bottom) continue
       if (position === 'sticky') {
         const previous = node.style.position
         node.style.position = 'static'
@@ -228,8 +258,19 @@
         node.style.position = previous
         if (Math.abs(natural.top - rect.top) < 1) continue
       }
-      if (rect.top <= top + 2) top = Math.max(top, rect.bottom)
-      else if (rect.bottom >= bottom - 2) bottom = Math.min(bottom, rect.top)
+      pinned.push(rect)
+    }
+    let { top, bottom } = box
+    // Stacked overlays (header, then a fade below it) trim the band in turn.
+    for (let changed = true; changed; ) {
+      changed = false
+      for (const rect of pinned) {
+        if (rect.bottom <= top || rect.top >= bottom) continue
+        if (rect.top <= top + EDGE_SLACK) top = rect.bottom
+        else if (rect.bottom >= bottom - EDGE_SLACK) bottom = rect.top
+        else continue
+        changed = true
+      }
     }
     if (bottom - top < height * 0.2) return box
     return { ...box, top, bottom }
