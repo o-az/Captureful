@@ -1,0 +1,10 @@
+<!doctype html><meta name=viewport content="width=device-width"><title>shadow</title>
+<body style="margin:0;font:16px sans-serif;background:#000">
+<div id=react-root><main style="height:100vh"><div data-testid=xchatEmbedRoute style="height:100vh"><x-chat></x-chat></div></main></div>
+<script>
+customElements.define('x-chat', class extends HTMLElement { connectedCallback() {
+  const r = this.attachShadow({mode:'open'})
+  r.innerHTML = `<style>:host{display:block;height:100vh}.wrap{display:flex;height:100%}.side{width:200px;background:#111;color:#fff}.chat{flex:1;overflow-y:auto;background:#222}p{margin:8px;padding:8px;background:#1d9bf0;color:#fff;border-radius:12px}</style>
+  <div class=wrap><div class=side>side</div><div class=chat>${Array.from({length:80},(_, i)=>`<p>Message #${i}</p>`).join('')}</div></div>`
+}})
+</script>
