@@ -22,6 +22,9 @@
   const CAPTURE_TIMEOUT_MS = 4000
   /** Max CSS px a manual scroll may move during a shot for it to be kept. */
   const MAX_SHOT_DRIFT = 24
+  /** Max CSS px a frame's tracked position is corrected by pixel matching. */
+  const MAX_ALIGN_SHIFT = 48
+  const SIGNATURE_COLUMNS = 32
   /** Overlays this close to the band's edge (e.g. a date pill under a header) are trimmed too. */
   const EDGE_SLACK = 12
   /** @type {Settings} */
@@ -665,6 +668,8 @@
   let observer = null
   /** @type {Calibration | null} */
   let calibration = null
+  /** Row signature of the last accepted frame, for aligning the next one. @type {{ range: Interval, rows: Uint8ClampedArray } | null} */
+  let lastSignature = null
   /** @type {Part[]} */
   let parts = []
   let resultInfo = ''
@@ -732,6 +737,7 @@
     updateRaf = 0
     highlightRaf = 0
     calibration = null
+    lastSignature = null
     sessionScale = 0
     frameWidthCss = 0
     generation++
@@ -1188,6 +1194,80 @@
     }
   }
 
+  /**
+   * Downscaled RGB rows of the frame's box, one row per CSS px.
+   * @param {ImageBitmap} bitmap @param {Calibration} cal @param {ReturnType<typeof visibleBoxOf>} box
+   */
+  const signatureOf = (bitmap, cal, box) => {
+    const height = Math.max(1, Math.round(box.bottom - box.top))
+    const canvas = createCanvas(SIGNATURE_COLUMNS, height)
+    const ctx = context2d(canvas)
+    ctx.drawImage(
+      bitmap,
+      cal.offsetX + box.left * cal.sx,
+      cal.offsetY + box.top * cal.sy,
+      (box.right - box.left) * cal.sx,
+      (box.bottom - box.top) * cal.sy,
+      0,
+      0,
+      SIGNATURE_COLUMNS,
+      height,
+    )
+    const rows = ctx.getImageData(0, 0, SIGNATURE_COLUMNS, height).data
+    canvas.width = 0
+    canvas.height = 0
+    return rows
+  }
+
+  /**
+   * Tracked positions drift when content reflows (rows prepended and regrouped).
+   * Where this frame overlaps the previous one, find the small shift that makes
+   * their pixels agree; keep the tracked position unless a shift is clearly better.
+   * @param {Uint8ClampedArray} rows @param {Interval} range
+   */
+  const alignShift = (rows, range) => {
+    const last = lastSignature
+    if (!last) return 0
+    const stride = SIGNATURE_COLUMNS * 4
+    const newHeight = rows.length / stride
+    const lastHeight = last.rows.length / stride
+    /** @param {number} shift */
+    const errorAt = (shift) => {
+      const start = Math.ceil(Math.max(range[0] + shift, last.range[0]))
+      const end = Math.floor(
+        Math.min(range[0] + shift + newHeight, last.range[0] + lastHeight),
+      )
+      if (end - start < 40) return Infinity
+      let sum = 0
+      let count = 0
+      for (let y = start; y < end; y++) {
+        const a = Math.floor(y - (range[0] + shift)) * stride
+        const b = Math.floor(y - last.range[0]) * stride
+        for (let i = 0; i < stride; i += 4) {
+          sum +=
+            Math.abs((rows[a + i] ?? 0) - (last.rows[b + i] ?? 0)) +
+            Math.abs((rows[a + i + 1] ?? 0) - (last.rows[b + i + 1] ?? 0)) +
+            Math.abs((rows[a + i + 2] ?? 0) - (last.rows[b + i + 2] ?? 0))
+          count += 3
+        }
+      }
+      return sum / count
+    }
+    const base = errorAt(0)
+    if (!Number.isFinite(base) || base < 2) return 0
+    let best = 0
+    let bestError = base
+    for (let shift = -MAX_ALIGN_SHIFT; shift <= MAX_ALIGN_SHIFT; shift++) {
+      if (!shift) continue
+      const error = errorAt(shift)
+      if (error < bestError) {
+        best = shift
+        bestError = error
+      }
+    }
+    return bestError < base * 0.5 && bestError < 4 ? best : 0
+  }
+
   const captureFrame = async () => {
     if (state !== 'capturing' || !target) return
     const session = generation
@@ -1224,6 +1304,13 @@
         range[0] += moved / 2
         range[1] += moved / 2
         pendingCapture = true
+      }
+      const signature = signatureOf(bitmap, cal, box)
+      const shift = alignShift(signature, range)
+      if (shift) {
+        position += shift
+        range[0] += shift
+        range[1] += shift
       }
       if (!sessionScale) {
         sessionScale = settings.scale
@@ -1271,6 +1358,7 @@
       if (session !== generation) return
       pieces.push(...framePieces)
       frameCount++
+      lastSignature = { range: [range[0], range[1]], rows: signature }
       coverage = mergeIntervals([...coverage, range])
       if (!autoDirection && !finishing) scheduleEdgeStop()
     } catch (error) {
