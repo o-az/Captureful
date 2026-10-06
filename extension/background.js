@@ -17,7 +17,7 @@ browser.action.onClicked.addListener((tab) => {
 })
 
 browser.runtime.onMessage.addListener((message, sender) => {
-  if (message?.type !== 'capture') return
+  if (message?.type !== 'capture' || (sender.frameId ?? 0) !== 0) return
   return browser.tabs
     .captureVisibleTab(sender.tab?.windowId ?? null, { format: 'png' })
     .then(

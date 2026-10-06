@@ -668,9 +668,16 @@
     render()
   }
 
+  let starting = false
   const start = async () => {
+    if (state !== 'idle' || starting) return
+    starting = true
+    try {
+      await loadStorage()
+    } finally {
+      starting = false
+    }
     if (state !== 'idle') return
-    await loadStorage()
     ensureUi()
     resetSession()
     candidate = settings.confirmArea ? rememberedTarget() : null
@@ -1111,6 +1118,8 @@
         frameWidthCss = box.right - box.left
       }
       const width = Math.round(frameWidthCss * sessionScale)
+      /** @type {typeof pieces} */
+      const framePieces = []
       for (const [a, b] of uncovered(range)) {
         const height = Math.max(1, Math.round((b - a) * sessionScale))
         const canvas = createCanvas(width, height)
@@ -1125,7 +1134,7 @@
           width,
           height,
         )
-        pieces.push({
+        framePieces.push({
           y: a,
           height: b - a,
           blob: await canvasToBlob(canvas, 'image/png'),
@@ -1134,8 +1143,11 @@
         canvas.height = 0
       }
       bitmap.close()
+      if (session !== generation) return
+      pieces.push(...framePieces)
       frameCount++
       coverage = mergeIntervals([...coverage, range])
+      if (!autoDirection && !finishing) scheduleEdgeStop()
     } catch (error) {
       captureErrors++
       console.error('[scrolling-screenshot] capture failed', error)
