@@ -1,0 +1,5 @@
+* text=auto
+.gitattributes !filter !diff
+
+.vscode/*.json linguist-language=JSON-with-Comments
+
