@@ -13,8 +13,8 @@
 		030C56363074882100AAD88F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 030C56343074882100AAD88F /* Main.storyboard */; };
 		030C563F3074882100AAD88F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 030C563E3074882100AAD88F /* AppDelegate.swift */; };
 		030C56423074882100AAD88F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 030C56403074882100AAD88F /* Main.storyboard */; };
-		030C56493074882100AAD88F /* ScrollingScreenshot Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 030C56483074882100AAD88F /* ScrollingScreenshot Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		030C56533074882100AAD88F /* ScrollingScreenshot Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 030C56523074882100AAD88F /* ScrollingScreenshot Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		030C56493074882100AAD88F /* Captureful Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 030C56483074882100AAD88F /* Captureful Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		030C56533074882100AAD88F /* Captureful Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 030C56523074882100AAD88F /* Captureful Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		030C56583074882100AAD88F /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 030C561D3074882000AAD88F /* Main.html */; };
 		030C56593074882100AAD88F /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 030C561D3074882000AAD88F /* Main.html */; };
 		030C565A3074882100AAD88F /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 030C561F3074882000AAD88F /* Icon.png */; };
@@ -49,14 +49,14 @@
 			containerPortal = 030C56173074882000AAD88F /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 030C56473074882100AAD88F;
-			remoteInfo = "ScrollingScreenshot Extension (iOS)";
+			remoteInfo = "Captureful Extension (iOS)";
 		};
 		030C56543074882100AAD88F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 030C56173074882000AAD88F /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 030C56513074882100AAD88F;
-			remoteInfo = "ScrollingScreenshot Extension (macOS)";
+			remoteInfo = "Captureful Extension (macOS)";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -67,7 +67,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				030C56493074882100AAD88F /* ScrollingScreenshot Extension.appex in Embed Foundation Extensions */,
+				030C56493074882100AAD88F /* Captureful Extension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -78,7 +78,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				030C56533074882100AAD88F /* ScrollingScreenshot Extension.appex in Embed Foundation Extensions */,
+				030C56533074882100AAD88F /* Captureful Extension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -93,19 +93,19 @@
 		030C56223074882000AAD88F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		030C56233074882100AAD88F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		030C56253074882100AAD88F /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
-		030C562A3074882100AAD88F /* ScrollingScreenshot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScrollingScreenshot.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		030C562A3074882100AAD88F /* Captureful.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Captureful.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		030C562D3074882100AAD88F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		030C562F3074882100AAD88F /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		030C56323074882100AAD88F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		030C56353074882100AAD88F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		030C56373074882100AAD88F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		030C563C3074882100AAD88F /* ScrollingScreenshot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScrollingScreenshot.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		030C563C3074882100AAD88F /* Captureful.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Captureful.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		030C563E3074882100AAD88F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		030C56413074882100AAD88F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		030C56433074882100AAD88F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		030C56483074882100AAD88F /* ScrollingScreenshot Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ScrollingScreenshot Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		030C56483074882100AAD88F /* Captureful Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Captureful Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		030C564D3074882100AAD88F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		030C56523074882100AAD88F /* ScrollingScreenshot Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ScrollingScreenshot Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		030C56523074882100AAD88F /* Captureful Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Captureful Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		030C56573074882100AAD88F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		030C56773074882100AAD88F /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = ../../../extension/background.js; sourceTree = "<group>"; };
 		030C56783074882100AAD88F /* options.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = options.js; path = ../../../extension/options.js; sourceTree = "<group>"; };
@@ -193,10 +193,10 @@
 		030C562B3074882100AAD88F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				030C562A3074882100AAD88F /* ScrollingScreenshot.app */,
-				030C563C3074882100AAD88F /* ScrollingScreenshot.app */,
-				030C56483074882100AAD88F /* ScrollingScreenshot Extension.appex */,
-				030C56523074882100AAD88F /* ScrollingScreenshot Extension.appex */,
+				030C562A3074882100AAD88F /* Captureful.app */,
+				030C563C3074882100AAD88F /* Captureful.app */,
+				030C56483074882100AAD88F /* Captureful Extension.appex */,
+				030C56523074882100AAD88F /* Captureful Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -256,9 +256,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		030C56293074882100AAD88F /* ScrollingScreenshot (iOS) */ = {
+		030C56293074882100AAD88F /* Captureful (iOS) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 030C566C3074882100AAD88F /* Build configuration list for PBXNativeTarget "ScrollingScreenshot (iOS)" */;
+			buildConfigurationList = 030C566C3074882100AAD88F /* Build configuration list for PBXNativeTarget "Captureful (iOS)" */;
 			buildPhases = (
 				030C56263074882100AAD88F /* Sources */,
 				030C56273074882100AAD88F /* Frameworks */,
@@ -270,16 +270,16 @@
 			dependencies = (
 				030C564B3074882100AAD88F /* PBXTargetDependency */,
 			);
-			name = "ScrollingScreenshot (iOS)";
+			name = "Captureful (iOS)";
 			packageProductDependencies = (
 			);
-			productName = "ScrollingScreenshot (iOS)";
-			productReference = 030C562A3074882100AAD88F /* ScrollingScreenshot.app */;
+			productName = "Captureful (iOS)";
+			productReference = 030C562A3074882100AAD88F /* Captureful.app */;
 			productType = "com.apple.product-type.application";
 		};
-		030C563B3074882100AAD88F /* ScrollingScreenshot (macOS) */ = {
+		030C563B3074882100AAD88F /* Captureful (macOS) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 030C56733074882100AAD88F /* Build configuration list for PBXNativeTarget "ScrollingScreenshot (macOS)" */;
+			buildConfigurationList = 030C56733074882100AAD88F /* Build configuration list for PBXNativeTarget "Captureful (macOS)" */;
 			buildPhases = (
 				030C56383074882100AAD88F /* Sources */,
 				030C56393074882100AAD88F /* Frameworks */,
@@ -291,16 +291,16 @@
 			dependencies = (
 				030C56553074882100AAD88F /* PBXTargetDependency */,
 			);
-			name = "ScrollingScreenshot (macOS)";
+			name = "Captureful (macOS)";
 			packageProductDependencies = (
 			);
-			productName = "ScrollingScreenshot (macOS)";
-			productReference = 030C563C3074882100AAD88F /* ScrollingScreenshot.app */;
+			productName = "Captureful (macOS)";
+			productReference = 030C563C3074882100AAD88F /* Captureful.app */;
 			productType = "com.apple.product-type.application";
 		};
-		030C56473074882100AAD88F /* ScrollingScreenshot Extension (iOS) */ = {
+		030C56473074882100AAD88F /* Captureful Extension (iOS) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 030C56683074882100AAD88F /* Build configuration list for PBXNativeTarget "ScrollingScreenshot Extension (iOS)" */;
+			buildConfigurationList = 030C56683074882100AAD88F /* Build configuration list for PBXNativeTarget "Captureful Extension (iOS)" */;
 			buildPhases = (
 				030C56443074882100AAD88F /* Sources */,
 				030C56453074882100AAD88F /* Frameworks */,
@@ -310,16 +310,16 @@
 			);
 			dependencies = (
 			);
-			name = "ScrollingScreenshot Extension (iOS)";
+			name = "Captureful Extension (iOS)";
 			packageProductDependencies = (
 			);
-			productName = "ScrollingScreenshot Extension (iOS)";
-			productReference = 030C56483074882100AAD88F /* ScrollingScreenshot Extension.appex */;
+			productName = "Captureful Extension (iOS)";
+			productReference = 030C56483074882100AAD88F /* Captureful Extension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		030C56513074882100AAD88F /* ScrollingScreenshot Extension (macOS) */ = {
+		030C56513074882100AAD88F /* Captureful Extension (macOS) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 030C566F3074882100AAD88F /* Build configuration list for PBXNativeTarget "ScrollingScreenshot Extension (macOS)" */;
+			buildConfigurationList = 030C566F3074882100AAD88F /* Build configuration list for PBXNativeTarget "Captureful Extension (macOS)" */;
 			buildPhases = (
 				030C564E3074882100AAD88F /* Sources */,
 				030C564F3074882100AAD88F /* Frameworks */,
@@ -329,11 +329,11 @@
 			);
 			dependencies = (
 			);
-			name = "ScrollingScreenshot Extension (macOS)";
+			name = "Captureful Extension (macOS)";
 			packageProductDependencies = (
 			);
-			productName = "ScrollingScreenshot Extension (macOS)";
-			productReference = 030C56523074882100AAD88F /* ScrollingScreenshot Extension.appex */;
+			productName = "Captureful Extension (macOS)";
+			productReference = 030C56523074882100AAD88F /* Captureful Extension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -360,7 +360,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 030C561A3074882000AAD88F /* Build configuration list for PBXProject "ScrollingScreenshot" */;
+			buildConfigurationList = 030C561A3074882000AAD88F /* Build configuration list for PBXProject "Captureful" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -374,10 +374,10 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				030C56293074882100AAD88F /* ScrollingScreenshot (iOS) */,
-				030C563B3074882100AAD88F /* ScrollingScreenshot (macOS) */,
-				030C56473074882100AAD88F /* ScrollingScreenshot Extension (iOS) */,
-				030C56513074882100AAD88F /* ScrollingScreenshot Extension (macOS) */,
+				030C56293074882100AAD88F /* Captureful (iOS) */,
+				030C563B3074882100AAD88F /* Captureful (macOS) */,
+				030C56473074882100AAD88F /* Captureful Extension (iOS) */,
+				030C56513074882100AAD88F /* Captureful Extension (macOS) */,
 			);
 		};
 /* End PBXProject section */
@@ -479,12 +479,12 @@
 /* Begin PBXTargetDependency section */
 		030C564B3074882100AAD88F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 030C56473074882100AAD88F /* ScrollingScreenshot Extension (iOS) */;
+			target = 030C56473074882100AAD88F /* Captureful Extension (iOS) */;
 			targetProxy = 030C564A3074882100AAD88F /* PBXContainerItemProxy */;
 		};
 		030C56553074882100AAD88F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 030C56513074882100AAD88F /* ScrollingScreenshot Extension (macOS) */;
+			target = 030C56513074882100AAD88F /* Captureful Extension (macOS) */;
 			targetProxy = 030C56543074882100AAD88F /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -661,7 +661,7 @@
 					SafariServices,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.amorfati.ScrollingScreenshot.Extension;
-				PRODUCT_NAME = "ScrollingScreenshot Extension";
+				PRODUCT_NAME = "Captureful Extension";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -695,7 +695,7 @@
 					SafariServices,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.amorfati.ScrollingScreenshot.Extension;
-				PRODUCT_NAME = "ScrollingScreenshot Extension";
+				PRODUCT_NAME = "Captureful Extension";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -738,7 +738,7 @@
 					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.amorfati.ScrollingScreenshot;
-				PRODUCT_NAME = ScrollingScreenshot;
+				PRODUCT_NAME = Captureful;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -780,7 +780,7 @@
 					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.amorfati.ScrollingScreenshot;
-				PRODUCT_NAME = ScrollingScreenshot;
+				PRODUCT_NAME = Captureful;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -818,7 +818,7 @@
 					SafariServices,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.amorfati.ScrollingScreenshot.Extension;
-				PRODUCT_NAME = "ScrollingScreenshot Extension";
+				PRODUCT_NAME = "Captureful Extension";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -854,7 +854,7 @@
 					SafariServices,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.amorfati.ScrollingScreenshot.Extension;
-				PRODUCT_NAME = "ScrollingScreenshot Extension";
+				PRODUCT_NAME = "Captureful Extension";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -896,7 +896,7 @@
 					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.amorfati.ScrollingScreenshot;
-				PRODUCT_NAME = ScrollingScreenshot;
+				PRODUCT_NAME = Captureful;
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -939,7 +939,7 @@
 					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.amorfati.ScrollingScreenshot;
-				PRODUCT_NAME = ScrollingScreenshot;
+				PRODUCT_NAME = Captureful;
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -954,7 +954,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		030C561A3074882000AAD88F /* Build configuration list for PBXProject "ScrollingScreenshot" */ = {
+		030C561A3074882000AAD88F /* Build configuration list for PBXProject "Captureful" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				030C56663074882100AAD88F /* Debug */,
@@ -963,7 +963,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		030C56683074882100AAD88F /* Build configuration list for PBXNativeTarget "ScrollingScreenshot Extension (iOS)" */ = {
+		030C56683074882100AAD88F /* Build configuration list for PBXNativeTarget "Captureful Extension (iOS)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				030C56693074882100AAD88F /* Debug */,
@@ -972,7 +972,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		030C566C3074882100AAD88F /* Build configuration list for PBXNativeTarget "ScrollingScreenshot (iOS)" */ = {
+		030C566C3074882100AAD88F /* Build configuration list for PBXNativeTarget "Captureful (iOS)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				030C566D3074882100AAD88F /* Debug */,
@@ -981,7 +981,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		030C566F3074882100AAD88F /* Build configuration list for PBXNativeTarget "ScrollingScreenshot Extension (macOS)" */ = {
+		030C566F3074882100AAD88F /* Build configuration list for PBXNativeTarget "Captureful Extension (macOS)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				030C56703074882100AAD88F /* Debug */,
@@ -990,7 +990,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		030C56733074882100AAD88F /* Build configuration list for PBXNativeTarget "ScrollingScreenshot (macOS)" */ = {
+		030C56733074882100AAD88F /* Build configuration list for PBXNativeTarget "Captureful (macOS)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				030C56743074882100AAD88F /* Debug */,

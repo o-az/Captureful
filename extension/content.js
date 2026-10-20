@@ -1,6 +1,6 @@
 ;(() => {
-  if (globalThis.__scrollingScreenshotLoaded) return
-  globalThis.__scrollingScreenshotLoaded = true
+  if (globalThis.__capturefulLoaded) return
+  globalThis.__capturefulLoaded = true
 
   /**
    * @typedef {{ confirmArea: boolean, autoStop: boolean, scale: number }} Settings
@@ -43,7 +43,7 @@
       settings = { ...DEFAULT_SETTINGS, ...stored.settings }
       areas = stored.areas ?? {}
     } catch (error) {
-      console.warn('[scrolling-screenshot] storage unavailable', error)
+      console.warn('[captureful] storage unavailable', error)
     }
   }
 
@@ -1137,7 +1137,7 @@
     }
     bitmap.close()
     if (first < 0) {
-      console.warn('[scrolling-screenshot] calibration marker not found')
+      console.warn('[captureful] calibration marker not found')
       return {
         key,
         offsetX: 0,
@@ -1398,7 +1398,7 @@
       if (!autoDirection && !finishing) scheduleEdgeStop()
     } catch (error) {
       captureErrors++
-      console.error('[scrolling-screenshot] capture failed', error)
+      console.error('[captureful] capture failed', error)
       if (captureErrors === 3) toast('Capture keeps failing. See console.')
     }
   }
@@ -1584,7 +1584,7 @@
       finishing = false
       setState('result')
     } catch (error) {
-      console.error('[scrolling-screenshot] stitching failed', error)
+      console.error('[captureful] stitching failed', error)
       toast('Stitching failed. See console.')
       cancel()
     }
@@ -1594,7 +1594,7 @@
 
   const fileStem = () => {
     const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
-    return `scrolling-screenshot-${location.host.replace(/[^\w.-]/g, '')}-${stamp}`
+    return `captureful-${location.host.replace(/[^\w.-]/g, '')}-${stamp}`
   }
 
   /** @param {Blob} blob @param {string} name */
@@ -1923,7 +1923,7 @@
         <button data-action="close">Close</button>
       </header>
       <div class="images">
-        ${parts.map((part, index) => `<img src="${part.url}" alt="Scrolling screenshot part ${index + 1}" width="${part.width}" height="${part.height}">`).join('')}
+        ${parts.map((part, index) => `<img src="${part.url}" alt="Captureful screenshot part ${index + 1}" width="${part.width}" height="${part.height}">`).join('')}
       </div>
     `
   }
